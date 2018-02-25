@@ -17,9 +17,10 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
-	"github.com/heketi/heketi/pkg/db"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/pkg/db"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
+	"time"
 )
 
 const (
@@ -116,7 +117,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			logger.LogError("No clusters configured")
 			return ErrNotFound
 		}
-
+		// check if no defined clusters, select one of master or slave if they defined
 		// Check the clusters requested are correct
 		for _, clusterid := range msg.Clusters {
 			_, err := NewClusterEntryFromId(tx, clusterid)
@@ -132,8 +133,37 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	// if no clusters defined then get master and slave, and create 2 volumes
+	// with geo-replication on it
+	// todo: support 2+ clusters, now only 2 supported
+	MasterCluster := []string{}
+	SlaveCluster := []string{}
+
+	if len(msg.Clusters) == 0 {
+		MasterCluster, SlaveCluster = a.MasterSlaveClustersCheck()
+		logger.Debug("Master Cluster found as %v and Slave Cluster found as %v \n", MasterCluster, SlaveCluster)
+	}
 
 	vol := NewVolumeEntryFromRequest(&msg)
+	// todo set only if no masters found etc. non crit.
+	remvol := NewVolumeEntryFromRequest(&msg)
+
+	// Masterslave  preparations for volume if master exists
+	if len(MasterCluster) != 0 {
+		vol.Info.Remvolid = remvol.Info.Id
+		vol.Info.Clusters = MasterCluster
+		remvol.Info.Remvolid = vol.Info.Id
+		remvol.Info.Clusters = SlaveCluster
+
+		fmt.Printf("MAST CLUS %v \n", MasterCluster)
+		fmt.Printf("in remvol.Info.Id  %v \n", remvol.Info.Id)
+		fmt.Printf("in vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
+		fmt.Printf("in vol.Info.Clusters  %v \n", vol.Info.Clusters)
+	}
+
+	fmt.Printf("remvol.Info.Id  %v \n", remvol.Info.Id)
+	fmt.Printf("vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
+	fmt.Printf("vol.Info.Clusters  %v \n", vol.Info.Clusters)
 
 	if uint64(msg.Size)*GB < vol.Durability.MinVolumeSize() {
 		http.Error(w, fmt.Sprintf("Requested volume size (%v GB) is "+
@@ -147,12 +177,210 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vc := NewVolumeCreateOperation(vol, a.db)
+	fmt.Printf(" IN OP vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
 	if err := AsyncHttpOperation(a, w, r, vc); err != nil {
 		http.Error(w,
 			fmt.Sprintf("Failed to allocate new volume: %v", err),
 			http.StatusInternalServerError)
 		return
 	}
+
+	// masterslave go on
+	if len(MasterCluster) != 0 {
+
+		if uint64(msg.Size)*GB < remvol.Durability.MinVolumeSize() {
+			http.Error(w, fmt.Sprintf("Requested volume size (%v GB) is "+
+				"smaller than the minimum supported volume size (%v)",
+				msg.Size, remvol.Durability.MinVolumeSize()),
+				http.StatusBadRequest)
+			logger.LogError(fmt.Sprintf("Requested volume size (%v GB) is "+
+				"smaller than the minimum supported volume size (%v)",
+				msg.Size, remvol.Durability.MinVolumeSize()))
+			return
+		}
+
+		remvc := NewVolumeCreateOperation(remvol, a.db)
+		fmt.Printf("REMVC IS  %v \n", remvc)
+
+		if err := AsyncHttpOperation(a, w, r, remvc); err != nil {
+			http.Error(w,
+				fmt.Sprintf("Failed to allocate new replicated volume: %v", err),
+				http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Printf("VOLUME INFO %v \n", vol.Info)
+		fmt.Printf("VOLUME INFO mount %v \n", vol.Info.Mount)
+		fmt.Printf("VOLUME INFO mount GlusterFS %v \n", vol.Info.Mount.GlusterFS)
+		fmt.Printf("VOLUME INFO mount GlusterFS  Hosts %v \n", vol.Info.Mount.GlusterFS.Hosts)
+		fmt.Printf("VOLUME INFO mount GlusterFS  Hosts  1st %v \n", vol.Info.Mount.GlusterFS.Hosts[0])
+		fmt.Printf("REM VOLUME INFO %v \n", remvol.Info)
+		fmt.Printf("REM VOLUME INFO mount %v \n", remvol.Info.Mount)
+		fmt.Printf("REM VOLUME INFO mount GlusterFS Hosts  %v \n", remvol.Info.Mount.GlusterFS.Hosts)
+		fmt.Printf("REM VOLUME INFO mount GlusterFS Hosts 1st  %v \n", remvol.Info.Mount.GlusterFS.Hosts[0])
+
+		// NEED to setup master-slave sessions both from master to slave and from slave to master
+
+		actionParams := make(map[string]string)
+		actionParams["option"] = "push-pem"
+		actionParams["force"] = "true"
+
+		geoRepCreateRequest := api.GeoReplicationRequest{
+			Action: api.GeoReplicationActionCreate,
+			ActionParams: actionParams,
+			GeoReplicationInfo: api.GeoReplicationInfo{
+				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
+				SlaveVolume: remvol.Info.Name,
+				SlaveSSHPort: 2222,
+			},
+		}
+
+		id := vol.Info.Id
+		var masterVolume *VolumeEntry
+		var host string
+
+		err = a.db.View(func(tx *bolt.Tx) error {
+			masterVolume, err = NewVolumeEntryFromId(tx, id)
+			fmt.Printf("VOLUME geo %v \n", masterVolume)
+			fmt.Printf("VOLUME geo INFO %v \n", masterVolume.Info)
+
+			if err == ErrNotFound {
+				http.Error(w, "Volume Id not found", http.StatusNotFound)
+				return err
+			} else if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return err
+			}
+
+			cluster, err := NewClusterEntryFromId(tx, masterVolume.Info.Cluster)
+			if err == ErrNotFound {
+				http.Error(w, "Cluster Id not found", http.StatusNotFound)
+				return err
+			} else if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return err
+			}
+
+			node, err := NewNodeEntryFromId(tx, cluster.Info.Nodes[0])
+			if err == ErrNotFound {
+				http.Error(w, "Node Id not found", http.StatusNotFound)
+				return err
+			} else if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return err
+			}
+
+			host = node.ManageHostName()
+
+			return nil
+		})
+		if err != nil {
+			return
+		}
+
+		fmt.Printf("Create geo replicate with request %v", geoRepCreateRequest)
+		// Perform GeoReplication action on volume in an asynchronous function
+		//a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
+		//	if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
+		//		return "", err
+		//	}
+		//
+		//	return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
+		//})
+
+		//todo: wait for volume create
+		time.Sleep(time.Minute)
+
+		if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
+			panic(err)
+		}
+
+
+		geoRepStartRequest := api.GeoReplicationRequest{
+			Action: api.GeoReplicationActionStart,
+			GeoReplicationInfo: api.GeoReplicationInfo{
+				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
+				SlaveVolume: remvol.Info.Name,
+			},
+		}
+
+		//todo: should be performed after volume create
+		fmt.Printf("Start geo replicate with request %v", geoRepStartRequest)
+		//a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
+		//	if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
+		//		return "", err
+		//	}
+		//
+		//	return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
+		//})
+
+		if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("Geo-Replication is started for volume: %v", masterVolume)
+
+		//		volume, err := NewVolumeEntryFromId(remvol.Info.Id)
+
+		//fmt.Printf("RRRRRRRRRRRRRRr %v", req)
+		//		fmt.Printf("RRRRRRRRRRRRRRr volumevolumevolumevolumevolumevolumevolumevolumevolume %v", volume)
+
+		/*		book := executors.GeoReplicationAction{}
+				e := reflect.ValueOf(&book).Elem()
+
+				for i := 0; i < e.NumField(); i++ {
+					varName := e.Type().Field(i).Name
+					varType := e.Type().Field(i).Type
+					varValue := e.Field(i).Interface()
+					fmt.Printf("%v %v %v\n", varName, varType, varValue)
+				}
+
+				fmt.Printf("BBBBBBBBBBBBBBBBBB %v", book)
+
+				/*		rrrrr := api.GeoReplicationRequest("create", option["no-verify"], remvol.Info.Mount.GlusterFS.Hosts[0], remvol.Info.Id, 2222)
+						Action := create
+						var ActionParams map[string]string
+						GeoReplicationInfo := api.GeoReplicationInfo(remvol.Info.Mount.GlusterFS.Hosts[0], remvol.Info.Id, 2222)
+						reqz := api.GeoReplicationRequest(Action, ActionParams, GeoReplicationInfo)
+
+						sdsdsadf := api.GeoReplicationActionType("create")
+						fmt.Printf(" %v", sdsdsadf)
+
+						//  NEED TO DO client/cli/go/heketi-cli volume georep --slave-host=dev-geogluster052-node-1-4 --ssh-port=2222 --slave-volume=vol_ea8b11b15b1cd288eaecd043b79d6b69 create 843e7be32ef53dab46ce3ec4a0e2c1d0
+						/*
+							logger.Debug("In VolumeGeoReplication")
+							r := vol.Info.Id, vol.Info.Remvolid
+							vars := mux.Vars(r)
+							logger.Debug("VARS", vars)
+							id := vars["id"]
+
+							var volume *VolumeEntry
+							var host string
+							var err error
+
+							var msg api.GeoReplicationRequest
+							if err := utils.GetJsonFromRequest(r, &msg); err != nil {
+								http.Error(w, "request unable to be parsed", http.StatusUnprocessableEntity)
+								return
+							}
+
+							var req api.GeoReplicationRequest
+							req, err := api.GeoReplicationRequest(*api.GeoReplicationStatus, error)
+
+							//		api.GeoReplicationActionCreate
+							//		req = "create"
+							//georep := api.GeoReplicationRequest(req)
+
+							// logger.Debug("georep %v \n", georep)
+
+							// TO DO
+							//  charge geo-rep  both directions
+							// start geo-rep from M to S
+							//		func (c *Client) GeoReplicationPostAction(id string, request *api.GeoReplicationRequest) (*api.GeoReplicationStatus, error) {
+		*/
+
+	}
+
 }
 
 func (a *App) VolumeList(w http.ResponseWriter, r *http.Request) {
@@ -224,11 +452,21 @@ func (a *App) VolumeDelete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
+	var remotevolumeid string
+	MasterCluster := []string{}
+	MasterCluster, _ = a.MasterSlaveClustersCheck()
+
 	var volume *VolumeEntry
 	err := a.db.View(func(tx *bolt.Tx) error {
 
 		var err error
 		volume, err = NewVolumeEntryFromId(tx, id)
+
+		if len(MasterCluster) != 0 {
+			remotevolumeid = volume.Info.Remvolid
+			logger.Debug("Remote Volume with id %v found \n", remotevolumeid)
+		}
+
 		if err == ErrNotFound {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return err
@@ -259,6 +497,7 @@ func (a *App) VolumeDelete(w http.ResponseWriter, r *http.Request) {
 		err = logger.LogError("Cannot delete a block hosting volume containing block volumes")
 		http.Error(w, err.Error(), http.StatusConflict)
 		return err
+
 	})
 	if err != nil {
 		return
@@ -271,6 +510,60 @@ func (a *App) VolumeDelete(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
+
+	if remotevolumeid != "" {
+		logger.Debug("For remote Volume id %v \n", remotevolumeid)
+		var volume *VolumeEntry
+		err := a.db.View(func(tx *bolt.Tx) error {
+
+			var err error
+			volume, err = NewVolumeEntryFromId(tx, remotevolumeid)
+
+			if err == ErrNotFound {
+				http.Error(w, err.Error(), http.StatusNotFound)
+				return err
+			} else if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return err
+			}
+
+			if volume.Info.Name == db.HeketiStorageVolumeName {
+				err := fmt.Errorf("Cannot delete volume containing the Heketi database")
+				http.Error(w, err.Error(), http.StatusConflict)
+				return err
+			}
+
+			if !volume.Info.Block {
+				// further checks only needed for block-hosting volumes
+				return nil
+			}
+
+			if volume.Info.BlockInfo.BlockVolumes == nil {
+				return nil
+			}
+
+			if len(volume.Info.BlockInfo.BlockVolumes) == 0 {
+				return nil
+			}
+
+			err = logger.LogError("Cannot delete a block hosting volume containing block volumes")
+			http.Error(w, err.Error(), http.StatusConflict)
+			return err
+
+		})
+		if err != nil {
+			return
+		}
+
+		vdel := NewVolumeDeleteOperation(volume, a.db)
+		if err := AsyncHttpOperation(a, w, r, vdel); err != nil {
+			http.Error(w,
+				fmt.Sprintf("Failed to set up volume delete: %v", err),
+				http.StatusInternalServerError)
+			return
+		}
+	}
+
 }
 
 func (a *App) VolumeExpand(w http.ResponseWriter, r *http.Request) {

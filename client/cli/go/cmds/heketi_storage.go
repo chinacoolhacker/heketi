@@ -15,9 +15,9 @@ import (
 	"fmt"
 	"os"
 
-	client "github.com/heketi/heketi/client/api/go-client"
-	"github.com/heketi/heketi/pkg/db"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	client "github.com/chinacoolhacker/heketi/client/api/go-client"
+	"github.com/chinacoolhacker/heketi/pkg/db"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/spf13/cobra"
 
 	kubeapi "k8s.io/kubernetes/pkg/api/v1"

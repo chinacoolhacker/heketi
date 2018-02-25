@@ -1,11 +1,11 @@
 # Overview
 
-![overview](https://github.com/heketi/heketi/wiki/images/aplo_arch.png)
+![overview](https://github.com/chinacoolhacker/heketi/wiki/images/aplo_arch.png)
 
 This guide enables the integration, deployment, and management of GlusterFS containerized storage nodes in an OpenShift cluster.  This enables OpenShift administrators to provide their users with reliable, shared storage.
 
 # Demo
-[![demo](https://github.com/heketi/heketi/wiki/images/aplo_demo.png)](https://asciinema.org/a/50531)
+[![demo](https://github.com/chinacoolhacker/heketi/wiki/images/aplo_demo.png)](https://asciinema.org/a/50531)
 
 For simplicity, you can deploy an OpenShift cluster using the configured [Heketi Vagrant Demo](https://github.com/heketi/vagrant-heketi)
 
@@ -28,11 +28,11 @@ For simplicity, you can deploy an OpenShift cluster using the configured [Heketi
 # Setup
 The following setup assumes that you will be using a client machine to communicate with the OpenShift cluser as shown:
 
-![setup](https://github.com/heketi/heketi/wiki/images/aplo_install.png)
+![setup](https://github.com/chinacoolhacker/heketi/wiki/images/aplo_install.png)
 
 ## Client Setup
 * Install the following packages in Fedora/CentOS(EPEL): `heketi-templates heketi-client`
-* For other Linux systems or MacOS X, install from the [releases page](https://github.com/heketi/heketi/releases/tag/v2.0.6)
+* For other Linux systems or MacOS X, install from the [releases page](https://github.com/chinacoolhacker/heketi/releases/tag/v2.0.6)
 
 ## Deployment
 

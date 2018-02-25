@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/heketi/heketi/pkg/glusterfs/api"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 )
 
 func (c *Client) DeviceAdd(request *api.DeviceAddRequest) error {

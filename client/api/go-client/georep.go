@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/heketi/utils"
 )
 

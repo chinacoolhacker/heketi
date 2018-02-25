@@ -13,7 +13,7 @@ import (
 	"sync"
 
 	"github.com/boltdb/bolt"
-	wdb "github.com/heketi/heketi/pkg/db"
+	wdb "github.com/chinacoolhacker/heketi/pkg/db"
 )
 
 // Simple allocator contains a map to rings of clusters

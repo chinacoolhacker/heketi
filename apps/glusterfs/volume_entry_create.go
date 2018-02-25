@@ -14,8 +14,8 @@ import (
 	"strings"
 
 	"github.com/boltdb/bolt"
-	"github.com/heketi/heketi/executors"
-	wdb "github.com/heketi/heketi/pkg/db"
+	"github.com/chinacoolhacker/heketi/executors"
+	wdb "github.com/chinacoolhacker/heketi/pkg/db"
 	"github.com/lpabon/godbc"
 )
 

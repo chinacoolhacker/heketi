@@ -11,7 +11,7 @@
 //
 
 //
-// Please see https://github.com/heketi/heketi/wiki/API
+// Please see https://github.com/chinacoolhacker/heketi/wiki/API
 // for documentation
 //
 package api
@@ -214,6 +214,7 @@ type NodeInfoResponse struct {
 type ClusterFlags struct {
 	Block bool `json:"block"`
 	File  bool `json:"file"`
+	Side string `json:"side,omitempty"`
 }
 
 type Cluster struct {
@@ -221,6 +222,7 @@ type Cluster struct {
 	Nodes   []NodeInfoResponse   `json:"nodes"`
 	Id      string               `json:"id"`
 	ClusterFlags
+	MasterSlaveCluster
 }
 
 type TopologyInfoResponse struct {
@@ -241,6 +243,7 @@ type ClusterInfoResponse struct {
 	Volumes sort.StringSlice `json:"volumes"`
 	ClusterFlags
 	BlockVolumes sort.StringSlice `json:"blockvolumes"`
+	MasterSlaveCluster
 }
 
 type ClusterListResponse struct {
@@ -296,9 +299,10 @@ func (volCreateRequest VolumeCreateRequest) Validate() error {
 
 type VolumeInfo struct {
 	VolumeCreateRequest
-	Id      string `json:"id"`
-	Cluster string `json:"cluster"`
-	Mount   struct {
+	Id       string `json:"id"`
+	Remvolid string `json:"remvolid"`
+	Cluster  string `json:"cluster"`
+	Mount    struct {
 		GlusterFS struct {
 			Hosts      []string          `json:"hosts"`
 			MountPoint string            `json:"device"`
@@ -391,6 +395,15 @@ const (
 	GeoReplicationActionDelete GeoReplicationActionType = "delete"
 )
 
+func NewVolumeInfoResponse() *VolumeInfoResponse {
+
+	info := &VolumeInfoResponse{}
+	info.Mount.GlusterFS.Options = make(map[string]string)
+	info.Bricks = make([]BrickInfo, 0)
+
+	return info
+}
+
 type GeoReplicationStatus struct {
 	Volumes []GeoReplicationVolume `json:"volume"`
 }
@@ -439,16 +452,21 @@ type GeoReplicationRequest struct {
 	GeoReplicationInfo
 }
 
-// Constructors
-
-func NewVolumeInfoResponse() *VolumeInfoResponse {
-
-	info := &VolumeInfoResponse{}
-	info.Mount.GlusterFS.Options = make(map[string]string)
-	info.Bricks = make([]BrickInfo, 0)
-
-	return info
+type MasterSlaveCluster struct {
+	Remoteid string `json:"remoteid"`
+	Status   string `json:"status"`
 }
+
+type ClusterSetMasterSlaveRequest struct {
+	MasterSlaveCluster
+}
+
+type MasterSlaveStatusResponse struct {
+	//	Clusters []string         `json:"clusters"`
+	//	Volumes  sort.StringSlice `json:"volumes"`
+}
+
+// Constructors
 
 func (v *GeoReplicationStatus) String() string {
 	var s string
