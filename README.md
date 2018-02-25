@@ -1,7 +1,7 @@
 [![Stories in Ready](https://badge.waffle.io/heketi/heketi.png?label=in%20progress&title=In%20Progress)](https://waffle.io/heketi/heketi)
 [![Build Status](https://travis-ci.org/heketi/heketi.svg?branch=master)](https://travis-ci.org/heketi/heketi)
 [![Coverage Status](https://coveralls.io/repos/heketi/heketi/badge.svg)](https://coveralls.io/r/heketi/heketi)
-[![Go Report Card](https://goreportcard.com/badge/github.com/heketi/heketi)](https://goreportcard.com/report/github.com/heketi/heketi)
+[![Go Report Card](https://goreportcard.com/badge/github.com/chinacoolhacker/heketi)](https://goreportcard.com/report/github.com/chinacoolhacker/heketi)
 
 # Heketi
 Heketi provides a RESTful management interface which can be used to manage the life cycle of GlusterFS volumes.  With Heketi, cloud services like OpenStack Manila, Kubernetes, and OpenShift can dynamically provision GlusterFS volumes with any of the supported durability types.  Heketi will automatically determine the location for bricks across the cluster, making sure to place bricks and its replicas across different failure domains.  Heketi also supports any number of GlusterFS clusters, allowing cloud services to provide network file storage without being limited to a single GlusterFS cluster.
@@ -12,13 +12,13 @@ When a request is received to create a volume, Heketi will first allocate the ap
 # Downloads
 
 Heketi source code can be obtained via the
-[project's releases page](https://github.com/heketi/heketi/releases)
+[project's releases page](https://github.com/chinacoolhacker/heketi/releases)
 or by cloning this repository.
 
 # Documentation
 
 Heketi's official documentation is located in the
-[docs/ directory](https://github.com/heketi/heketi/tree/master/docs/)
+[docs/ directory](https://github.com/chinacoolhacker/heketi/tree/master/docs/)
 within the repo.
 
 # Demo

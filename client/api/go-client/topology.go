@@ -13,7 +13,7 @@
 package client
 
 import (
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 )
 
 func (c *Client) TopologyInfo() (*api.TopologyInfoResponse, error) {
@@ -36,6 +36,7 @@ func (c *Client) TopologyInfo() (*api.TopologyInfoResponse, error) {
 			ClusterFlags: api.ClusterFlags{
 				Block: clusteri.Block,
 				File:  clusteri.File,
+				Side:  clusteri.Side,
 			},
 		}
 		cluster.Id = clusteri.Id

@@ -15,9 +15,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/heketi/heketi/executors/cmdexec"
-	"github.com/heketi/heketi/pkg/utils"
-	"github.com/heketi/heketi/pkg/utils/ssh"
+	"github.com/chinacoolhacker/heketi/executors/cmdexec"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/pkg/utils/ssh"
 	"github.com/lpabon/godbc"
 )
 

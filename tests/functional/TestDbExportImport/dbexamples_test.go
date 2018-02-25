@@ -16,8 +16,8 @@ import (
 	"testing"
 
 	//"github.com/boltdb/bolt"
-	g "github.com/heketi/heketi/apps/glusterfs"
-	//"github.com/heketi/heketi/pkg/glusterfs/api"
+	g "github.com/chinacoolhacker/heketi/apps/glusterfs"
+	//"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	//"github.com/heketi/tests"
 )
 

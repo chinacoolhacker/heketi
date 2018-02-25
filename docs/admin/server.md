@@ -60,8 +60,8 @@ Example:
 * On EPEL/Fedora systems, the private ssh keyfile must be readable by `heketi` user.    
 
 ## Examples
-* [Mock setup](https://github.com/heketi/heketi/blob/master/etc/heketi.json)
-* ~~[Functional test setup](https://github.com/heketi/heketi/blob/master/tests/functional/large/config/heketi.json)~~
+* [Mock setup](https://github.com/chinacoolhacker/heketi/blob/master/etc/heketi.json)
+* ~~[Functional test setup](https://github.com/chinacoolhacker/heketi/blob/master/tests/functional/large/config/heketi.json)~~
 
 # Starting the server
 
