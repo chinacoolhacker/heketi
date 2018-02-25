@@ -15,7 +15,12 @@ import (
 	"strconv"
 
 	"github.com/heketi/heketi/executors"
+	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
+)
+
+var (
+	logger = utils.NewLogger("[cmdexec]", utils.LEVEL_DEBUG)
 )
 
 // GeoReplicationCreate creates a geo-rep session for the given volume
