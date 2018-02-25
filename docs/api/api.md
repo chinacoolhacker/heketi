@@ -38,7 +38,7 @@ Here is a small example of how to use the Go client library:
 
 import (
 	"fmt"
-	"github.com/heketi/heketi/client/api/go-client"
+	"github.com/chinacoolhacker/heketi/client/api/go-client"
 )
 
 func main() {
@@ -57,12 +57,12 @@ func main() {
 }
 ```
 
-For more examples see the [Heketi cli client](https://github.com/heketi/heketi/tree/master/client/cli/go/cmds).
+For more examples see the [Heketi cli client](https://github.com/chinacoolhacker/heketi/tree/master/client/cli/go/cmds).
 
-* Source: https://github.com/heketi/heketi/tree/master/client/api/go-client
+* Source: https://github.com/chinacoolhacker/heketi/tree/master/client/api/go-client
 
 ## Python Client Library
-The python client library can be installed either from the source or by installing the `python-heketi` package in Fedora/RHEL.  The source is available https://github.com/heketi/heketi/tree/master/client/api/python , and for examples, please check out the [unit tests](https://github.com/heketi/heketi/blob/master/client/api/python/test/unit/test_client.py)
+The python client library can be installed either from the source or by installing the `python-heketi` package in Fedora/RHEL.  The source is available https://github.com/chinacoolhacker/heketi/tree/master/client/api/python , and for examples, please check out the [unit tests](https://github.com/chinacoolhacker/heketi/blob/master/client/api/python/test/unit/test_client.py)
 
 ## Running the development server
 The simplest way to development a client for Heketi is to run the Heketi service in `mock` mode.  In this mode, Heketi will not need to communicate with any storage nodes, instead it mocks the communication, while still supporting all REST calls and maintaining state.  The simplest way to run the Heketi server is to run it from a container as follows:

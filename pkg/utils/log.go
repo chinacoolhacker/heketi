@@ -49,9 +49,9 @@ func logWithLongFile(l *log.Logger, format string, v ...interface{}) {
 
 	// Shorten the path.
 	// From
-	// /builddir/build/BUILD/heketi-3f4a5b1b6edff87232e8b24533c53b4151ebd9c7/src/github.com/heketi/heketi/apps/glusterfs/volume_entry.go
+	// /builddir/build/BUILD/heketi-3f4a5b1b6edff87232e8b24533c53b4151ebd9c7/src/github.com/chinacoolhacker/heketi/apps/glusterfs/volume_entry.go
 	// to
-	// src/github.com/heketi/heketi/apps/glusterfs/volume_entry.go
+	// src/github.com/chinacoolhacker/heketi/apps/glusterfs/volume_entry.go
 	i := strings.Index(file, "/src/")
 	if i == -1 {
 		i = 0

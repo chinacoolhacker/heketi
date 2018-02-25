@@ -16,8 +16,8 @@ import (
 	"os"
 	"strings"
 
-	client "github.com/heketi/heketi/client/api/go-client"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	client "github.com/chinacoolhacker/heketi/client/api/go-client"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +38,7 @@ type ConfigFileCluster struct {
 	Nodes []ConfigFileNode `json:"nodes"`
 	Block *bool            `json:"block,omitempty"`
 	File  *bool            `json:"file,omitempty"`
+	Side  *string		   `json:"side,omitempty"` //left,right
 }
 type ConfigFile struct {
 	Clusters []ConfigFileCluster `json:"clusters"`
@@ -164,6 +165,10 @@ var topologyLoadCommand = &cobra.Command{
 							req.Block = *cluster.Block
 						}
 
+						if cluster.Side != nil {
+							req.Side = *cluster.Side
+						}
+
 						clusterInfo, err = heketi.ClusterCreate(req)
 						if err != nil {
 							return err
@@ -175,6 +180,9 @@ var topologyLoadCommand = &cobra.Command{
 						}
 						if req.Block {
 							fmt.Fprintf(stdout, "\tAllowing block volumes on cluster.\n")
+						}
+						if req.Side != "" {
+							fmt.Fprintf(stdout, "\tSide %v for cluster.\n", req.Side)
 						}
 
 						// Create a cleanup function in case no
@@ -227,6 +235,51 @@ var topologyLoadCommand = &cobra.Command{
 				}
 			}
 		}
+
+		//todo: support more than one cluster
+		list, err := heketi.ClusterList()
+
+		if err != nil {
+			return err
+		}
+
+		var leftCluster api.ClusterInfoResponse
+		var rightCluster api.ClusterInfoResponse
+		if err != nil {
+			return err
+		}
+		for _, cluster := range list.Clusters {
+			clusteri, err := heketi.ClusterInfo(cluster)
+			if err != nil {
+				return err
+			}
+			if clusteri.Side == "left" {
+				leftCluster = *clusteri
+			}
+			if clusteri.Side == "right" {
+				rightCluster = *clusteri
+			}
+
+		}
+
+		req := api.ClusterSetMasterSlaveRequest{
+			MasterSlaveCluster: api.MasterSlaveCluster{
+				Remoteid: rightCluster.Id,
+				Status:   "master",
+			},
+		}
+
+		fmt.Printf("Left Cluster ID: %v\n", leftCluster.Id)
+		fmt.Printf("Right Cluster ID: %v\n", rightCluster.Id)
+
+		err = heketi.MasterClusterSlavePostAction(leftCluster.Id, &req)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Cluster %v marked as 'master'. Cluster %v marked as 'slave'\n", leftCluster.Id, rightCluster.Id)
+
 		return nil
 	},
 }
