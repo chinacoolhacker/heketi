@@ -22,7 +22,7 @@ import (
 // GeoReplicationStatus is the handler returning the geo-replication session
 // status
 func (a *App) GeoReplicationStatus(w http.ResponseWriter, r *http.Request) {
-	logger.Debug("In GeoReplicationStatus")
+	logger.Debug("In GeoReplicationStatus req %v \n", r)
 
 	var node *NodeEntry
 	var err error
@@ -147,9 +147,11 @@ func (a *App) GeoReplicationVolumeStatus(w http.ResponseWriter, r *http.Request)
 // It covers create, config, start, stop, pause, resume and delete
 func (a *App) GeoReplicationPostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("In VolumeGeoReplication")
+	fmt.Printf("GeoReplicationPostHandler is wwwwwwww %v rrrrrrrr %v \n", w, r)
 
 	vars := mux.Vars(r)
 	id := vars["id"]
+	fmt.Printf("VARS %v \n", vars)
 
 	var volume *VolumeEntry
 	var host string
@@ -177,6 +179,9 @@ func (a *App) GeoReplicationPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	err = a.db.View(func(tx *bolt.Tx) error {
 		volume, err = NewVolumeEntryFromId(tx, id)
+		fmt.Printf("VOLUME geo %v \n", volume)
+		fmt.Printf("VOLUME geo INFO %v \n", volume.Info)
+
 		if err == ErrNotFound {
 			http.Error(w, "Volume Id not found", http.StatusNotFound)
 			return err

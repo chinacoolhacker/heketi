@@ -170,6 +170,7 @@ func (v *VolumeEntry) NewInfoResponse(tx *bolt.Tx) (*api.VolumeInfoResponse, err
 
 	info := api.NewVolumeInfoResponse()
 	info.Id = v.Info.Id
+	info.Remvolid = v.Info.Remvolid
 	info.Cluster = v.Info.Cluster
 	info.Mount = v.Info.Mount
 	info.Snapshot = v.Info.Snapshot

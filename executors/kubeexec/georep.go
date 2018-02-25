@@ -7,7 +7,7 @@
 // cases as published by the Free Software Foundation.
 //
 
-package sshexec
+package kubeexec
 
 import (
 	"encoding/xml"
@@ -15,16 +15,11 @@ import (
 	"strconv"
 
 	"github.com/heketi/heketi/executors"
-	"github.com/heketi/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
 )
 
-var (
-	logger = utils.NewLogger("[cmdexec]", utils.LEVEL_DEBUG)
-)
-
 // GeoReplicationCreate creates a geo-rep session for the given volume
-func (s *SshExecutor) GeoReplicationCreate(host, volume string, geoRep *executors.GeoReplicationRequest) error {
+func (s *KubeExecutor) GeoReplicationCreate(host, volume string, geoRep *executors.GeoReplicationRequest) error {
 	logger.Debug("In GeoReplicationCreate")
 	logger.Debug("actionParams: %+v", geoRep.ActionParams)
 
@@ -54,7 +49,7 @@ func (s *SshExecutor) GeoReplicationCreate(host, volume string, geoRep *executor
 }
 
 // GeoReplicationAction executes the given geo-replication action for the given volume
-func (s *SshExecutor) GeoReplicationAction(host, volume, action string, geoRep *executors.GeoReplicationRequest) error {
+func (s *KubeExecutor) GeoReplicationAction(host, volume, action string, geoRep *executors.GeoReplicationRequest) error {
 	logger.Debug("In GeoReplicationAction: %s", action)
 
 	godbc.Require(host != "")
@@ -77,7 +72,7 @@ func (s *SshExecutor) GeoReplicationAction(host, volume, action string, geoRep *
 }
 
 // GeoReplicationStatus returns the geo-replication status
-func (s *SshExecutor) GeoReplicationStatus(host string) (*executors.GeoReplicationStatus, error) {
+func (s *KubeExecutor) GeoReplicationStatus(host string) (*executors.GeoReplicationStatus, error) {
 	logger.Debug("In GeoReplicationStatus")
 
 	godbc.Require(host != "")
@@ -107,7 +102,7 @@ func (s *SshExecutor) GeoReplicationStatus(host string) (*executors.GeoReplicati
 }
 
 // GeoReplicationVolumeStatus returns the geo-replication status of a specific volume
-func (s *SshExecutor) GeoReplicationVolumeStatus(host, volume string) (*executors.GeoReplicationStatus, error) {
+func (s *KubeExecutor) GeoReplicationVolumeStatus(host, volume string) (*executors.GeoReplicationStatus, error) {
 	logger.Debug("In GeoReplicationVolumeStatus")
 
 	godbc.Require(host != "")
@@ -139,7 +134,7 @@ func (s *SshExecutor) GeoReplicationVolumeStatus(host, volume string) (*executor
 }
 
 // GeoReplicationConfig configures the geo-replication session for the given volume
-func (s *SshExecutor) GeoReplicationConfig(host, volume string, geoRep *executors.GeoReplicationRequest) error {
+func (s *KubeExecutor) GeoReplicationConfig(host, volume string, geoRep *executors.GeoReplicationRequest) error {
 	logger.Debug("In GeoReplicationConfig")
 
 	godbc.Require(host != "")
@@ -156,7 +151,7 @@ func (s *SshExecutor) GeoReplicationConfig(host, volume string, geoRep *executor
 	return nil
 }
 
-func (s *SshExecutor) createConfigCommands(volume string, geoRep *executors.GeoReplicationRequest) []string {
+func (s *KubeExecutor) createConfigCommands(volume string, geoRep *executors.GeoReplicationRequest) []string {
 	commands := []string{}
 
 	cmdTpl := "gluster --mode=script volume geo-replication %s %s::%s config %s %s"
