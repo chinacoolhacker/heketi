@@ -16,8 +16,8 @@ import (
 	//	"os"
 	"strings"
 
-	client "github.com/heketi/heketi/client/api/go-client"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	client "github.com/chinacoolhacker/heketi/client/api/go-client"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/spf13/cobra"
 )
 

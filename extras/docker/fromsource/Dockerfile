@@ -9,16 +9,16 @@ LABEL description="Development build"
 ENV BUILD_HOME=/build
 ENV GOPATH=$BUILD_HOME/golang
 ENV PATH=$GOPATH/bin:$PATH
-ENV HEKETI_BRANCH="master"
+ENV HEKETI_BRANCH="masterslave-test1"
 
 # install dependencies, build and cleanup
 RUN mkdir $BUILD_HOME $GOPATH && \
     dnf -y install glide golang git make && \
     dnf -y clean all && \
-    mkdir -p $GOPATH/src/github.com/heketi && \
-    cd $GOPATH/src/github.com/heketi && \
+    mkdir -p $GOPATH/src/github.com/chinacoolhacker && \
+    cd $GOPATH/src/github.com/chinacoolhacker && \
     git clone -b $HEKETI_BRANCH https://github.com/chinacoolhacker/heketi.git && \
-    cd $GOPATH/src/github.com/heketi/heketi && \
+    cd $GOPATH/src/github.com/chinacoolhacker/heketi && \
     glide install -v && \
     make && \
     cp heketi /usr/bin/heketi && \

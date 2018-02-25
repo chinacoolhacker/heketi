@@ -12,7 +12,7 @@ package cmds
 import (
 	"fmt"
 
-	client "github.com/heketi/heketi/client/api/go-client"
+	client "github.com/chinacoolhacker/heketi/client/api/go-client"
 	"github.com/spf13/cobra"
 )
 

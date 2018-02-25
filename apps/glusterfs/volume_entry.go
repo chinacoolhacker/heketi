@@ -16,10 +16,10 @@ import (
 	"sort"
 
 	"github.com/boltdb/bolt"
-	"github.com/heketi/heketi/executors"
-	wdb "github.com/heketi/heketi/pkg/db"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/executors"
+	wdb "github.com/chinacoolhacker/heketi/pkg/db"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
 )
 
@@ -170,6 +170,7 @@ func (v *VolumeEntry) NewInfoResponse(tx *bolt.Tx) (*api.VolumeInfoResponse, err
 
 	info := api.NewVolumeInfoResponse()
 	info.Id = v.Info.Id
+	info.Remvolid = v.Info.Remvolid
 	info.Cluster = v.Info.Cluster
 	info.Mount = v.Info.Mount
 	info.Snapshot = v.Info.Snapshot

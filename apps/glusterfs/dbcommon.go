@@ -11,8 +11,8 @@ package glusterfs
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 )
 
 const (

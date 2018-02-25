@@ -100,7 +100,7 @@ class HeketiClient(object):
 
     def cluster_create(self, cluster_options={}):
         ''' cluster_options is a dict with cluster creation options:
-            https://github.com/heketi/heketi/wiki/API#cluster_create
+            https://github.com/chinacoolhacker/heketi/wiki/API#cluster_create
         '''
         req = self._make_request('POST', '/clusters', cluster_options)
         if req.status_code == requests.codes.created:
@@ -131,7 +131,7 @@ class HeketiClient(object):
     def node_add(self, node_options={}):
         '''
         node_options is a dict consisting of paramters for
-        adding a node: https://github.com/heketi/heketi/wiki/API#add-node
+        adding a node: https://github.com/chinacoolhacker/heketi/wiki/API#add-node
         '''
         uri = "/nodes"
         req = self._make_request('POST', uri, node_options)
@@ -161,7 +161,7 @@ class HeketiClient(object):
     def device_add(self, device_options={}):
         ''' device_options is a dict with parameters to be passed \
             in the json request: \
-            https://github.com/heketi/heketi/wiki/API#add-device
+            https://github.com/chinacoolhacker/heketi/wiki/API#add-device
         '''
         uri = '/devices'
         req = self._make_request('POST', uri, device_options)
@@ -194,7 +194,7 @@ class HeketiClient(object):
 
     def volume_create(self, volume_options={}):
         ''' volume_options is a dict with volume creation options:
-            https://github.com/heketi/heketi/wiki/API#create-a-volume
+            https://github.com/chinacoolhacker/heketi/wiki/API#create-a-volume
         '''
         uri = '/volumes'
         req = self._make_request('POST', uri, volume_options)

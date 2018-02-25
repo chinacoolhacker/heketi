@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/context"
 	"github.com/urfave/negroni"
 
-	"github.com/heketi/heketi/pkg/kubernetes"
+	"github.com/chinacoolhacker/heketi/pkg/kubernetes"
 )
 
 var (

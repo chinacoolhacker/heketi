@@ -14,8 +14,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/heketi/heketi/executors"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/executors"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
 )
 
@@ -42,7 +42,7 @@ func (s *SshExecutor) GeoReplicationCreate(host, volume string, geoRep *executor
 	cmd := fmt.Sprintf("gluster --mode=script volume geo-replication %s %s::%s create%s%s", volume, geoRep.SlaveHost, geoRep.SlaveVolume, sshPort, geoRep.ActionParams["option"])
 
 	if force, ok := geoRep.ActionParams["force"]; ok && force == "true" {
-		cmd = fmt.Sprintf("%s %s", cmd, force)
+		cmd = fmt.Sprintf("%s %s", cmd, "force")
 	}
 
 	commands := []string{cmd}

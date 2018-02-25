@@ -22,9 +22,9 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
-	client "github.com/heketi/heketi/client/api/go-client"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
-	"github.com/heketi/heketi/pkg/utils"
+	client "github.com/chinacoolhacker/heketi/client/api/go-client"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/heketi/tests"
 )
 
