@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
-	wdb "github.com/heketi/heketi/pkg/db"
-	"github.com/heketi/heketi/pkg/utils"
+	wdb "github.com/chinacoolhacker/heketi/pkg/db"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/lpabon/godbc"
 )
 

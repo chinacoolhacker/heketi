@@ -26,7 +26,7 @@ $ export PATH=$PATH:$GOPATH/bin
 $ curl https://glide.sh/get | sh
 $ mkdir -p src/github.com/heketi
 $ cd src/github.com/heketi
-$ git clone https://github.com/heketi/heketi.git
+$ git clone https://github.com/chinacoolhacker/heketi.git
 ```
 
 ## Running
@@ -34,7 +34,7 @@ $ git clone https://github.com/heketi/heketi.git
 Run the entire suite:
 
 ```
-$ cd $GOPATH/src/github.com/heketi/heketi/tests/functional
+$ cd $GOPATH/src/github.com/chinacoolhacker/heketi/tests/functional
 $ ./run.sh
 ```
 
