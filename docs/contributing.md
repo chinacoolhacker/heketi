@@ -25,7 +25,7 @@ If you are new to the GitHub process, please see https://guides.github.com/intro
 1. Setup your [GOPATH](http://www.g33knotes.org/2014/07/60-second-count-down-to-go.html) environment
 1. Type: `mkdir -p $GOPATH/src/github.com/heketi`
 1. Type: `cd $GOPATH/src/github.com/heketi`
-1. Type: `git clone https://github.com/heketi/heketi.git`
+1. Type: `git clone https://github.com/chinacoolhacker/heketi.git`
 1. Type: `cd heketi`
 
 Now you need to setup your repo where you will be pushing your changes into:
@@ -43,8 +43,8 @@ configuration like so:
 $ git remote -v
 github  git@github.com:jdoe1234/heketi.git (fetch)
 github  git@github.com:jdoe1234/heketi.git (push)
-origin  https://github.com/heketi/heketi (fetch)
-origin  https://github.com/heketi/heketi (push)
+origin  https://github.com/chinacoolhacker/heketi (fetch)
+origin  https://github.com/chinacoolhacker/heketi (push)
 ```
 
 ### Building and Testing
@@ -123,13 +123,13 @@ are iterating on changes in a narrow area of the code. In this case, you
 can execute the [Go language test tool](https://golang.org/cmd/go/#hdr-Test_packages)
 directly. When using `go test` you can specify a package (sub-directory)
 and the tool will only run tests in that directory. For example:
-`go test -v github.com/heketi/heketi/apps/glusterfs`.
+`go test -v github.com/chinacoolhacker/heketi/apps/glusterfs`.
 
 You can also run an individual unit test by appending `-run <TestName>`
 to the invocation of `go test`. In order for go to find the test, there are
 two options: either call `go test` from the directory that contains the test,
 or specify the path in the invocation of `go test` as above. For example:
-`go test -v -run TestVolumeEntryCreateFourBricks github.com/heketi/heketi/apps/glusterfs`
+`go test -v -run TestVolumeEntryCreateFourBricks github.com/chinacoolhacker/heketi/apps/glusterfs`
 
 #### Functional Tests
 
@@ -143,7 +143,7 @@ You will need these tools installed on your system prior to running the
 test suite.
 
 Refer to the test scripts within the
-[Functional Tests Directory](https://github.com/heketi/heketi/tree/master/tests/functional)
+[Functional Tests Directory](https://github.com/chinacoolhacker/heketi/tree/master/tests/functional)
 in the Heketi repository for all the gory details.
 
 ### Pull Requests

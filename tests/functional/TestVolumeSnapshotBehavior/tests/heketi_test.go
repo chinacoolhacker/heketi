@@ -14,10 +14,10 @@ import (
 	"fmt"
 	"testing"
 
-	client "github.com/heketi/heketi/client/api/go-client"
-	"github.com/heketi/heketi/pkg/glusterfs/api"
-	"github.com/heketi/heketi/pkg/utils"
-	"github.com/heketi/heketi/pkg/utils/ssh"
+	client "github.com/chinacoolhacker/heketi/client/api/go-client"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/pkg/utils/ssh"
 	"github.com/heketi/tests"
 )
 

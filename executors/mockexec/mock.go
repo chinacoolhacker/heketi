@@ -10,7 +10,7 @@
 package mockexec
 
 import (
-	"github.com/heketi/heketi/executors"
+	"github.com/chinacoolhacker/heketi/executors"
 )
 
 type MockExecutor struct {
@@ -37,7 +37,10 @@ type MockExecutor struct {
 	MockHealInfo                   func(host string, volume string) (*executors.HealInfo, error)
 	MockBlockVolumeCreate          func(host string, blockVolume *executors.BlockVolumeRequest) (*executors.BlockVolumeInfo, error)
 	MockBlockVolumeDestroy         func(host string, blockHostingVolumeName string, blockVolumeName string) error
+	MockSshdControl                func(host string, action string) error
 }
+
+//    SshdControl(host string, action string) error
 
 func NewMockExecutor() (*MockExecutor, error) {
 	m := &MockExecutor{}
@@ -162,6 +165,10 @@ func NewMockExecutor() (*MockExecutor, error) {
 		return nil, nil
 	}
 
+	m.MockSshdControl = func(host, action string) error {
+		return nil
+	}
+
 	return m, nil
 }
 
@@ -259,4 +266,8 @@ func (m *MockExecutor) GeoReplicationVolumeStatus(host, volume string) (*executo
 
 func (m *MockExecutor) GeoReplicationStatus(host string) (*executors.GeoReplicationStatus, error) {
 	return m.MockGeoReplicationStatus(host)
+}
+
+func (m *MockExecutor) SshdControl(host, action string) error {
+	return m.MockSshdControl(host, action)
 }

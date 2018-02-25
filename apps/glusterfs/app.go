@@ -19,11 +19,11 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
-	"github.com/heketi/heketi/executors"
-	"github.com/heketi/heketi/executors/kubeexec"
-	"github.com/heketi/heketi/executors/mockexec"
-	"github.com/heketi/heketi/executors/sshexec"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/executors"
+	"github.com/chinacoolhacker/heketi/executors/kubeexec"
+	"github.com/chinacoolhacker/heketi/executors/mockexec"
+	"github.com/chinacoolhacker/heketi/executors/sshexec"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/heketi/rest"
 )
 
@@ -410,6 +410,23 @@ func (a *App) SetRoutes(router *mux.Router) error {
 			Method:      "POST",
 			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/georeplication",
 			HandlerFunc: a.GeoReplicationPostHandler},
+
+		// Master-slave
+		rest.Route{
+			Name:        "MasterSlaveStatus",
+			Method:      "GET",
+			Pattern:     "/masterslave",
+			HandlerFunc: a.MasterSlaveStatus},
+		rest.Route{
+			Name:        "MasterSlaveClustersStatus",
+			Method:      "GET",
+			Pattern:     "/clusters/{id:[A-Fa-f0-9]+}/masterslave",
+			HandlerFunc: a.MasterSlaveClustersStatus},
+		rest.Route{
+			Name:        "MasterSlave",
+			Method:      "POST",
+			Pattern:     "/clusters/{id:[A-Fa-f0-9]+}/masterslave",
+			HandlerFunc: a.MasterSlaveClusterPostHandler},
 	}
 
 	// Register all routes from the App

@@ -13,7 +13,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 
 	"github.com/boltdb/bolt"
 	"github.com/heketi/tests"

@@ -36,6 +36,7 @@ type Executor interface {
 	SetLogLevel(level string)
 	BlockVolumeCreate(host string, blockVolume *BlockVolumeRequest) (*BlockVolumeInfo, error)
 	BlockVolumeDestroy(host string, blockHostingVolumeName string, blockVolumeName string) error
+	SshdControl(host string, action string) error
 }
 
 type GeoReplicationStatus struct {
