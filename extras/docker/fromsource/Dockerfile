@@ -18,7 +18,7 @@ RUN mkdir $BUILD_HOME $GOPATH && \
     mkdir -p $GOPATH/src/github.com/heketi && \
     cd $GOPATH/src/github.com/heketi && \
     git clone -b $HEKETI_BRANCH https://github.com/chinacoolhacker/heketi.git && \
-    cd $GOPATH/src/github.com/heketi/heketi && \
+    cd $GOPATH/src/github.com/chinacoolhacker/heketi && \
     glide install -v && \
     make && \
     cp heketi /usr/bin/heketi && \

@@ -19,11 +19,11 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
-	"github.com/heketi/heketi/executors"
-	"github.com/heketi/heketi/executors/kubeexec"
-	"github.com/heketi/heketi/executors/mockexec"
-	"github.com/heketi/heketi/executors/sshexec"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/executors"
+	"github.com/chinacoolhacker/heketi/executors/kubeexec"
+	"github.com/chinacoolhacker/heketi/executors/mockexec"
+	"github.com/chinacoolhacker/heketi/executors/sshexec"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/heketi/rest"
 )
 

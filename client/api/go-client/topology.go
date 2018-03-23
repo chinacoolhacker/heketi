@@ -13,7 +13,7 @@
 package client
 
 import (
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 )
 
 func (c *Client) TopologyInfo() (*api.TopologyInfoResponse, error) {

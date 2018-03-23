@@ -14,8 +14,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/heketi/heketi/executors/kubeexec"
-	"github.com/heketi/heketi/executors/sshexec"
+	"github.com/chinacoolhacker/heketi/executors/kubeexec"
+	"github.com/chinacoolhacker/heketi/executors/sshexec"
 )
 
 type GlusterFSConfig struct {

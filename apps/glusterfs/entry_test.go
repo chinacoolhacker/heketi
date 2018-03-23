@@ -12,7 +12,7 @@ package glusterfs
 import (
 	"testing"
 
-	"github.com/heketi/heketi/pkg/glusterfs/api"
+	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/heketi/tests"
 )
 

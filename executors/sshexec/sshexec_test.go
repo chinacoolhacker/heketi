@@ -13,8 +13,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/heketi/heketi/executors/cmdexec"
-	"github.com/heketi/heketi/pkg/utils"
+	"github.com/chinacoolhacker/heketi/executors/cmdexec"
+	"github.com/chinacoolhacker/heketi/pkg/utils"
 	"github.com/heketi/tests"
 )
 

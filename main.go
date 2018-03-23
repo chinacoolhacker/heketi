@@ -20,9 +20,9 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
-	"github.com/heketi/heketi/apps"
-	"github.com/heketi/heketi/apps/glusterfs"
-	"github.com/heketi/heketi/middleware"
+	"github.com/chinacoolhacker/heketi/apps"
+	"github.com/chinacoolhacker/heketi/apps/glusterfs"
+	"github.com/chinacoolhacker/heketi/middleware"
 	"github.com/spf13/cobra"
 	"github.com/urfave/negroni"
 

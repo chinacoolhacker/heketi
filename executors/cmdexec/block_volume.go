@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/heketi/heketi/executors"
+	"github.com/chinacoolhacker/heketi/executors"
 	"github.com/lpabon/godbc"
 )
 
