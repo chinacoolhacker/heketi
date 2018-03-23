@@ -38,6 +38,7 @@ type ConfigFileCluster struct {
 	Nodes []ConfigFileNode `json:"nodes"`
 	Block *bool            `json:"block,omitempty"`
 	File  *bool            `json:"file,omitempty"`
+	Side  *string		   `json:"side,omitempty"` //left,right
 }
 type ConfigFile struct {
 	Clusters []ConfigFileCluster `json:"clusters"`
@@ -164,6 +165,10 @@ var topologyLoadCommand = &cobra.Command{
 							req.Block = *cluster.Block
 						}
 
+						if cluster.Side != nil {
+							req.Side = *cluster.Side
+						}
+
 						clusterInfo, err = heketi.ClusterCreate(req)
 						if err != nil {
 							return err
@@ -175,6 +180,9 @@ var topologyLoadCommand = &cobra.Command{
 						}
 						if req.Block {
 							fmt.Fprintf(stdout, "\tAllowing block volumes on cluster.\n")
+						}
+						if req.Side != "" {
+							fmt.Fprintf(stdout, "\tSide %v for cluster.\n", req.Side)
 						}
 
 						// Create a cleanup function in case no
@@ -225,6 +233,37 @@ var topologyLoadCommand = &cobra.Command{
 						}
 					}
 				}
+			}
+		}
+
+		//todo: support more than one cluster
+		clusterlist, err := heketi.ClusterList()
+		var leftCluster api.ClusterInfoResponse
+		var rightCluster api.ClusterInfoResponse
+		if err != nil {
+			for _, cluster := range clusterlist.Clusters {
+				clusteri, err := heketi.ClusterInfo(cluster)
+				if err != nil {
+					if clusteri.Side == "left" {
+						leftCluster = *clusteri
+					}
+					if clusteri.Side == "right" {
+						rightCluster = *clusteri
+					}
+				}
+			}
+
+			req := api.ClusterSetMasterSlaveRequest{
+				MasterSlaveCluster : api.MasterSlaveCluster{
+					Remoteid: rightCluster.Id,
+					Status: "master",
+				},
+			}
+			//todo: configure left=master, right=slave
+			err := heketi.MasterClusterSlavePostAction(leftCluster.Id, &req)
+
+			if err != nil {
+				return err
 			}
 		}
 		return nil

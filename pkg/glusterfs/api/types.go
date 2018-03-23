@@ -214,6 +214,7 @@ type NodeInfoResponse struct {
 type ClusterFlags struct {
 	Block bool `json:"block"`
 	File  bool `json:"file"`
+	Side string `json:"side,omitempty"`
 }
 
 type Cluster struct {
