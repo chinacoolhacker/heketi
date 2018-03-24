@@ -237,35 +237,49 @@ var topologyLoadCommand = &cobra.Command{
 		}
 
 		//todo: support more than one cluster
-		clusterlist, err := heketi.ClusterList()
+		list, err := heketi.ClusterList()
+
+		if err != nil {
+			return err
+		}
+
 		var leftCluster api.ClusterInfoResponse
 		var rightCluster api.ClusterInfoResponse
 		if err != nil {
-			for _, cluster := range clusterlist.Clusters {
-				clusteri, err := heketi.ClusterInfo(cluster)
-				if err != nil {
-					if clusteri.Side == "left" {
-						leftCluster = *clusteri
-					}
-					if clusteri.Side == "right" {
-						rightCluster = *clusteri
-					}
-				}
-			}
-
-			req := api.ClusterSetMasterSlaveRequest{
-				MasterSlaveCluster : api.MasterSlaveCluster{
-					Remoteid: rightCluster.Id,
-					Status: "master",
-				},
-			}
-			//todo: configure left=master, right=slave
-			err := heketi.MasterClusterSlavePostAction(leftCluster.Id, &req)
-
+			return err
+		}
+		for _, cluster := range list.Clusters {
+			clusteri, err := heketi.ClusterInfo(cluster)
 			if err != nil {
 				return err
 			}
+			if clusteri.Side == "left" {
+				leftCluster = *clusteri
+			}
+			if clusteri.Side == "right" {
+				rightCluster = *clusteri
+			}
+
 		}
+
+		req := api.ClusterSetMasterSlaveRequest{
+			MasterSlaveCluster: api.MasterSlaveCluster{
+				Remoteid: rightCluster.Id,
+				Status:   "master",
+			},
+		}
+
+		fmt.Printf("Left Cluster ID: %v\n", leftCluster.Id)
+		fmt.Printf("Right Cluster ID: %v\n", rightCluster.Id)
+
+		err = heketi.MasterClusterSlavePostAction(leftCluster.Id, &req)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Cluster %v marked as 'master'. Cluster %v marked as 'slave'\n", leftCluster.Id, rightCluster.Id)
+
 		return nil
 	},
 }
