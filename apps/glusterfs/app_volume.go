@@ -220,12 +220,17 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 		// NEED to setup master-slave sessions both from master to slave and from slave to master
 
+		actionParams := make(map[string]string)
+		actionParams["option"] = "push-pem"
+		actionParams["force"] = "true"
+
 		geoRepCreateRequest := api.GeoReplicationRequest{
 			Action: api.GeoReplicationActionCreate,
-			//			ActionParams: map[option] = "no-verify",
+			ActionParams: actionParams,
 			GeoReplicationInfo: api.GeoReplicationInfo{
 				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
 				SlaveVolume: remvol.Info.Id,
+				SlaveSSHPort: 2222,
 			},
 		}
 
@@ -282,9 +287,9 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
 		})
 
+
 		geoRepStartRequest := api.GeoReplicationRequest{
 			Action: api.GeoReplicationActionStart,
-			//			ActionParams: map[option] = "no-verify",
 			GeoReplicationInfo: api.GeoReplicationInfo{
 				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
 				SlaveVolume: remvol.Info.Id,
