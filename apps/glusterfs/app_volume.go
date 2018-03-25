@@ -296,6 +296,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
+		//todo: should be performed after volume create
 		fmt.Printf("Start geo replicate with request %v", geoRepStartRequest)
 		a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
 			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
