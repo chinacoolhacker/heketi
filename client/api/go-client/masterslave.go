@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/heketi/utils"
@@ -35,15 +34,7 @@ func (c *Client) MasterClusterSlavePostAction(id string, request *api.ClusterSet
 	if err != nil {
 		return  err
 	}
-	if r.StatusCode != http.StatusAccepted {
-		return  utils.GetErrorFromResponse(r)
-	}
 
-	// Wait for response
-	r, err = c.waitForResponseWithTimer(r, time.Second)
-	if err != nil {
-		return err
-	}
 	if r.StatusCode != http.StatusOK {
 		return utils.GetErrorFromResponse(r)
 	}
