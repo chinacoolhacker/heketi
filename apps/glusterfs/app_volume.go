@@ -230,7 +230,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			ActionParams: actionParams,
 			GeoReplicationInfo: api.GeoReplicationInfo{
 				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
-				SlaveVolume: remvol.Info.Id,
+				SlaveVolume: remvol.Info.Name,
 				SlaveSSHPort: 2222,
 			},
 		}
@@ -300,7 +300,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			Action: api.GeoReplicationActionStart,
 			GeoReplicationInfo: api.GeoReplicationInfo{
 				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
-				SlaveVolume: remvol.Info.Id,
+				SlaveVolume: remvol.Info.Name,
 			},
 		}
 
