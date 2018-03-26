@@ -20,6 +20,7 @@ import (
 	"github.com/chinacoolhacker/heketi/pkg/db"
 	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
 	"github.com/chinacoolhacker/heketi/pkg/utils"
+	"time"
 )
 
 const (
@@ -279,13 +280,20 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Create geo replicate with request %v", geoRepCreateRequest)
 		// Perform GeoReplication action on volume in an asynchronous function
-		a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
-			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
-				return "", err
-			}
+		//a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
+		//	if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
+		//		return "", err
+		//	}
+		//
+		//	return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
+		//})
 
-			return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
-		})
+		//todo: wait for volume create
+		time.Sleep(time.Minute)
+
+		if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
+			panic(err)
+		}
 
 
 		geoRepStartRequest := api.GeoReplicationRequest{
@@ -298,13 +306,17 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 		//todo: should be performed after volume create
 		fmt.Printf("Start geo replicate with request %v", geoRepStartRequest)
-		a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
-			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
-				return "", err
-			}
+		//a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
+		//	if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
+		//		return "", err
+		//	}
+		//
+		//	return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
+		//})
 
-			return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
-		})
+		if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
+			panic(err)
+		}
 
 		fmt.Printf("Geo-Replication is started for volume: %v", masterVolume)
 
