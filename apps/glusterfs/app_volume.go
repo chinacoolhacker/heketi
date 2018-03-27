@@ -251,18 +251,22 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("VOLUME geo INFO %v \n", masterVolume.Info)
 
 				if err == ErrNotFound {
+					fmt.Printf("[ERROR] Volume Id not found: %v", err)
 					http.Error(w, "Volume Id not found", http.StatusNotFound)
 					return err
 				} else if err != nil {
+					fmt.Printf("[ERROR] Internal error: %v", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return err
 				}
 
 				node, err := NewNodeEntryFromId(tx, masterVolume.Info.Mount.GlusterFS.Hosts[0])
 				if err == ErrNotFound {
+					fmt.Printf("[ERROR] Node Id not found: %v", err)
 					http.Error(w, "Node Id not found", http.StatusNotFound)
 					return err
 				} else if err != nil {
+					fmt.Printf("[ERROR] Internal error: %v", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return err
 				}
@@ -271,7 +275,9 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 				return nil
 			})
+
 			if err != nil {
+				fmt.Printf("[ERROR] Error during found master volume : %v", err)
 				return "", err
 			}
 
