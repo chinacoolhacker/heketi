@@ -219,165 +219,88 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("REM VOLUME INFO mount GlusterFS Hosts  %v \n", remvol.Info.Mount.GlusterFS.Hosts)
 		fmt.Printf("REM VOLUME INFO mount GlusterFS Hosts 1st  %v \n", remvol.Info.Mount.GlusterFS.Hosts[0])
 
-		// NEED to setup master-slave sessions both from master to slave and from slave to master
 
-		actionParams := make(map[string]string)
-		actionParams["option"] = "push-pem"
-		actionParams["force"] = "true"
-
-		geoRepCreateRequest := api.GeoReplicationRequest{
-			Action: api.GeoReplicationActionCreate,
-			ActionParams: actionParams,
-			GeoReplicationInfo: api.GeoReplicationInfo{
-				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
-				SlaveVolume: remvol.Info.Name,
-				SlaveSSHPort: 2222,
-			},
-		}
-
-		id := vol.Info.Id
-		var masterVolume *VolumeEntry
-		var host string
-
-		err = a.db.View(func(tx *bolt.Tx) error {
-			masterVolume, err = NewVolumeEntryFromId(tx, id)
-			fmt.Printf("VOLUME geo %v \n", masterVolume)
-			fmt.Printf("VOLUME geo INFO %v \n", masterVolume.Info)
-
-			if err == ErrNotFound {
-				http.Error(w, "Volume Id not found", http.StatusNotFound)
-				return err
-			} else if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return err
-			}
-
-			cluster, err := NewClusterEntryFromId(tx, masterVolume.Info.Cluster)
-			if err == ErrNotFound {
-				http.Error(w, "Cluster Id not found", http.StatusNotFound)
-				return err
-			} else if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return err
-			}
-
-			node, err := NewNodeEntryFromId(tx, cluster.Info.Nodes[0])
-			if err == ErrNotFound {
-				http.Error(w, "Node Id not found", http.StatusNotFound)
-				return err
-			} else if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return err
-			}
-
-			host = node.ManageHostName()
-
-			return nil
-		})
-		if err != nil {
-			return
-		}
-
-		fmt.Printf("Create geo replicate with request %v", geoRepCreateRequest)
 		// Perform GeoReplication action on volume in an asynchronous function
-		//a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
-		//	if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
-		//		return "", err
-		//	}
-		//
-		//	return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
-		//})
+		a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
 
-		//todo: wait for volume create
-		time.Sleep(time.Minute)
+			//todo: wait for volume create
+			time.Sleep(time.Minute)
+			// NEED to setup master-slave sessions both from master to slave and from slave to master
 
-		if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
-			panic(err)
-		}
+			actionParams := make(map[string]string)
+			actionParams["option"] = "push-pem"
+			actionParams["force"] = "true"
 
+			geoRepCreateRequest := api.GeoReplicationRequest{
+				Action: api.GeoReplicationActionCreate,
+				ActionParams: actionParams,
+				GeoReplicationInfo: api.GeoReplicationInfo{
+					SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
+					SlaveVolume: remvol.Info.Name,
+					SlaveSSHPort: 2222,
+				},
+			}
 
-		geoRepStartRequest := api.GeoReplicationRequest{
-			Action: api.GeoReplicationActionStart,
-			GeoReplicationInfo: api.GeoReplicationInfo{
-				SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
-				SlaveVolume: remvol.Info.Name,
-			},
-		}
+			id := vol.Info.Id
+			var masterVolume *VolumeEntry
+			var host string
 
-		//todo: should be performed after volume create
-		fmt.Printf("Start geo replicate with request %v", geoRepStartRequest)
-		//a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
-		//	if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
-		//		return "", err
-		//	}
-		//
-		//	return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
-		//})
+			err = a.db.View(func(tx *bolt.Tx) error {
+				masterVolume, err = NewVolumeEntryFromId(tx, id)
+				fmt.Printf("VOLUME geo %v \n", masterVolume)
+				fmt.Printf("VOLUME geo INFO %v \n", masterVolume.Info)
 
-		if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("Geo-Replication is started for volume: %v", masterVolume)
-
-		//		volume, err := NewVolumeEntryFromId(remvol.Info.Id)
-
-		//fmt.Printf("RRRRRRRRRRRRRRr %v", req)
-		//		fmt.Printf("RRRRRRRRRRRRRRr volumevolumevolumevolumevolumevolumevolumevolumevolume %v", volume)
-
-		/*		book := executors.GeoReplicationAction{}
-				e := reflect.ValueOf(&book).Elem()
-
-				for i := 0; i < e.NumField(); i++ {
-					varName := e.Type().Field(i).Name
-					varType := e.Type().Field(i).Type
-					varValue := e.Field(i).Interface()
-					fmt.Printf("%v %v %v\n", varName, varType, varValue)
+				if err == ErrNotFound {
+					http.Error(w, "Volume Id not found", http.StatusNotFound)
+					return err
+				} else if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return err
 				}
 
-				fmt.Printf("BBBBBBBBBBBBBBBBBB %v", book)
+				node, err := NewNodeEntryFromId(tx, masterVolume.Info.Mount.GlusterFS.Hosts[0])
+				if err == ErrNotFound {
+					http.Error(w, "Node Id not found", http.StatusNotFound)
+					return err
+				} else if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return err
+				}
 
-				/*		rrrrr := api.GeoReplicationRequest("create", option["no-verify"], remvol.Info.Mount.GlusterFS.Hosts[0], remvol.Info.Id, 2222)
-						Action := create
-						var ActionParams map[string]string
-						GeoReplicationInfo := api.GeoReplicationInfo(remvol.Info.Mount.GlusterFS.Hosts[0], remvol.Info.Id, 2222)
-						reqz := api.GeoReplicationRequest(Action, ActionParams, GeoReplicationInfo)
+				host = node.ManageHostName()
 
-						sdsdsadf := api.GeoReplicationActionType("create")
-						fmt.Printf(" %v", sdsdsadf)
+				return nil
+			})
+			if err != nil {
+				return "", err
+			}
 
-						//  NEED TO DO client/cli/go/heketi-cli volume georep --slave-host=dev-geogluster052-node-1-4 --ssh-port=2222 --slave-volume=vol_ea8b11b15b1cd288eaecd043b79d6b69 create 843e7be32ef53dab46ce3ec4a0e2c1d0
-						/*
-							logger.Debug("In VolumeGeoReplication")
-							r := vol.Info.Id, vol.Info.Remvolid
-							vars := mux.Vars(r)
-							logger.Debug("VARS", vars)
-							id := vars["id"]
+			fmt.Printf("Create geo replicate with request %v", geoRepCreateRequest)
+			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
+				return "", err
+			}
 
-							var volume *VolumeEntry
-							var host string
-							var err error
 
-							var msg api.GeoReplicationRequest
-							if err := utils.GetJsonFromRequest(r, &msg); err != nil {
-								http.Error(w, "request unable to be parsed", http.StatusUnprocessableEntity)
-								return
-							}
+			geoRepStartRequest := api.GeoReplicationRequest{
+				Action: api.GeoReplicationActionStart,
+				GeoReplicationInfo: api.GeoReplicationInfo{
+					SlaveHost:   remvol.Info.Mount.GlusterFS.Hosts[0],
+					SlaveVolume: remvol.Info.Name,
+				},
+			}
 
-							var req api.GeoReplicationRequest
-							req, err := api.GeoReplicationRequest(*api.GeoReplicationStatus, error)
+			//todo: should be performed after volume create
+			fmt.Printf("Start geo replicate with request %v", geoRepStartRequest)
 
-							//		api.GeoReplicationActionCreate
-							//		req = "create"
-							//georep := api.GeoReplicationRequest(req)
+			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
+				return "", err
+			}
 
-							// logger.Debug("georep %v \n", georep)
+			fmt.Printf("Geo-Replication is started for volume: %v", masterVolume)
 
-							// TO DO
-							//  charge geo-rep  both directions
-							// start geo-rep from M to S
-							//		func (c *Client) GeoReplicationPostAction(id string, request *api.GeoReplicationRequest) (*api.GeoReplicationStatus, error) {
-		*/
+
+			return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
+		})
 
 	}
 
