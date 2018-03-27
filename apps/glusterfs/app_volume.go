@@ -260,7 +260,16 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 					return err
 				}
 
-				node, err := NewNodeEntryFromId(tx, masterVolume.Info.Mount.GlusterFS.Hosts[0])
+				cluster, err := NewClusterEntryFromId(tx, masterVolume.Info.Cluster)
+				if err == ErrNotFound {
+					http.Error(w, "Cluster Id not found", http.StatusNotFound)
+					return err
+				} else if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return err
+				}
+
+				node, err := NewNodeEntryFromId(tx, cluster.Info.Nodes[0])
 				if err == ErrNotFound {
 					fmt.Printf("[ERROR] Node Id not found: %v", err)
 					http.Error(w, "Node Id not found", http.StatusNotFound)
