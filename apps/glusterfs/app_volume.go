@@ -155,15 +155,15 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 		remvol.Info.Remvolid = vol.Info.Id
 		remvol.Info.Clusters = SlaveCluster
 
-		fmt.Printf("MAST CLUS %v \n", MasterCluster)
-		fmt.Printf("in remvol.Info.Id  %v \n", remvol.Info.Id)
-		fmt.Printf("in vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
-		fmt.Printf("in vol.Info.Clusters  %v \n", vol.Info.Clusters)
+		logger.Debug("MAST CLUS %v \n", MasterCluster)
+		logger.Debug("in remvol.Info.Id  %v \n", remvol.Info.Id)
+		logger.Debug("in vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
+		logger.Debug("in vol.Info.Clusters  %v \n", vol.Info.Clusters)
 	}
 
-	fmt.Printf("remvol.Info.Id  %v \n", remvol.Info.Id)
-	fmt.Printf("vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
-	fmt.Printf("vol.Info.Clusters  %v \n", vol.Info.Clusters)
+	logger.Debug("remvol.Info.Id  %v \n", remvol.Info.Id)
+	logger.Debug("vol.Info.Remvolid  %v \n", vol.Info.Remvolid)
+	logger.Debug("vol.Info.Clusters  %v \n", vol.Info.Clusters)
 
 	if uint64(msg.Size)*GB < vol.Durability.MinVolumeSize() {
 		http.Error(w, fmt.Sprintf("Requested volume size (%v GB) is "+
@@ -209,15 +209,15 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Printf("VOLUME INFO %v \n", vol.Info)
-		fmt.Printf("VOLUME INFO mount %v \n", vol.Info.Mount)
-		fmt.Printf("VOLUME INFO mount GlusterFS %v \n", vol.Info.Mount.GlusterFS)
-		fmt.Printf("VOLUME INFO mount GlusterFS  Hosts %v \n", vol.Info.Mount.GlusterFS.Hosts)
-		fmt.Printf("VOLUME INFO mount GlusterFS  Hosts  1st %v \n", vol.Info.Mount.GlusterFS.Hosts[0])
-		fmt.Printf("REM VOLUME INFO %v \n", remvol.Info)
-		fmt.Printf("REM VOLUME INFO mount %v \n", remvol.Info.Mount)
-		fmt.Printf("REM VOLUME INFO mount GlusterFS Hosts  %v \n", remvol.Info.Mount.GlusterFS.Hosts)
-		fmt.Printf("REM VOLUME INFO mount GlusterFS Hosts 1st  %v \n", remvol.Info.Mount.GlusterFS.Hosts[0])
+		logger.Debug("VOLUME INFO %v \n", vol.Info)
+		logger.Debug("VOLUME INFO mount %v \n", vol.Info.Mount)
+		logger.Debug("VOLUME INFO mount GlusterFS %v \n", vol.Info.Mount.GlusterFS)
+		logger.Debug("VOLUME INFO mount GlusterFS  Hosts %v \n", vol.Info.Mount.GlusterFS.Hosts)
+		logger.Debug("VOLUME INFO mount GlusterFS  Hosts  1st %v \n", vol.Info.Mount.GlusterFS.Hosts[0])
+		logger.Debug("REM VOLUME INFO %v \n", remvol.Info)
+		logger.Debug("REM VOLUME INFO mount %v \n", remvol.Info.Mount)
+		logger.Debug("REM VOLUME INFO mount GlusterFS Hosts  %v \n", remvol.Info.Mount.GlusterFS.Hosts)
+		logger.Debug("REM VOLUME INFO mount GlusterFS Hosts 1st  %v \n", remvol.Info.Mount.GlusterFS.Hosts[0])
 
 
 		// Perform GeoReplication action on volume in an asynchronous function
@@ -247,15 +247,15 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 			err = a.db.View(func(tx *bolt.Tx) error {
 				masterVolume, err = NewVolumeEntryFromId(tx, id)
-				fmt.Printf("VOLUME geo %v \n", masterVolume)
-				fmt.Printf("VOLUME geo INFO %v \n", masterVolume.Info)
+				logger.Debug("VOLUME geo %v \n", masterVolume)
+				logger.Debug("VOLUME geo INFO %v \n", masterVolume.Info)
 
 				if err == ErrNotFound {
-					fmt.Printf("[ERROR] Volume Id not found: %v", err)
+					logger.LogError("[ERROR] Volume Id not found: %v \n", err)
 					http.Error(w, "Volume Id not found", http.StatusNotFound)
 					return err
 				} else if err != nil {
-					fmt.Printf("[ERROR] Internal error: %v", err)
+					logger.LogError("[ERROR] Internal error: %v \n", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return err
 				}
@@ -271,11 +271,11 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 				node, err := NewNodeEntryFromId(tx, cluster.Info.Nodes[0])
 				if err == ErrNotFound {
-					fmt.Printf("[ERROR] Node Id not found: %v", err)
+					logger.LogError("[ERROR] Node Id not found: %v", err)
 					http.Error(w, "Node Id not found", http.StatusNotFound)
 					return err
 				} else if err != nil {
-					fmt.Printf("[ERROR] Internal error: %v", err)
+					logger.LogError("[ERROR] Internal error: %v", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return err
 				}
@@ -286,11 +286,11 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			})
 
 			if err != nil {
-				fmt.Printf("[ERROR] Error during found master volume : %v", err)
+				logger.LogError("[ERROR] Error during found master volume : %v \n", err)
 				return "", err
 			}
 
-			fmt.Printf("Create geo replicate with request %v", geoRepCreateRequest)
+			logger.Debug("Create geo replicate with request %v \n", geoRepCreateRequest)
 			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepCreateRequest); err != nil {
 				return "", err
 			}
@@ -305,13 +305,13 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 			}
 
 			//todo: should be performed after volume create
-			fmt.Printf("Start geo replicate with request %v", geoRepStartRequest)
+			logger.Debug("Start geo replicate with request %v \n", geoRepStartRequest)
 
 			if err := masterVolume.GeoReplicationAction(a.db, a.executor, host, geoRepStartRequest); err != nil {
 				return "", err
 			}
 
-			fmt.Printf("Geo-Replication is started for volume: %v", masterVolume)
+			logger.Info("Geo-Replication is started for volume: %v \n", masterVolume)
 
 
 			return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
