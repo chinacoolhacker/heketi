@@ -3,7 +3,6 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/chinacoolhacker/heketi/pkg/glusterfs/api"
@@ -23,8 +22,6 @@ func (c *Client) MasterClusterSlavePostAction(id string, request *api.ClusterSet
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-
-	fmt.Printf(" rrrrrrr  %v \n", req)
 
 	// Set token
 	err = c.setToken(req)
@@ -50,7 +47,6 @@ func (c *Client) MasterSlaveClusterStatus(id string) (*api.MasterSlaveClusterSta
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf(" rrrrrrr  %v \n", req)
 
 	// Set token
 	err = c.setToken(req)
@@ -63,7 +59,6 @@ func (c *Client) MasterSlaveClusterStatus(id string) (*api.MasterSlaveClusterSta
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf(" G rrrrrrr  %v \n", r)
 
 	if r.StatusCode != http.StatusOK {
 		return nil, utils.GetErrorFromResponse(r)
@@ -79,37 +74,6 @@ func (c *Client) MasterSlaveClusterStatus(id string) (*api.MasterSlaveClusterSta
 
 	return &status, nil
 }
-
-/*
-func (c *Client) MasterSlaveClusterStatus(id string) error {
-	// Marshal request to JSON
-
-	// Create a request
-	req, err := http.NewRequest("GET", c.host+"/clusters/"+id+"/masterslave", nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	// Set token
-	err = c.setToken(req)
-	if err != nil {
-		return err
-	}
-
-	// Send request
-	r, err := c.do(req)
-	if err != nil {
-		return err
-	}
-
-	if r.StatusCode != http.StatusOK {
-		return utils.GetErrorFromResponse(r)
-	}
-
-	return nil
-}
-*/
 
 func (c *Client) MasterSlaveStatus() (*api.MasterSlaveStatus, error) {
 	// Create request

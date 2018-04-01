@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strings"
 
 	"github.com/boltdb/bolt"
 	"github.com/chinacoolhacker/heketi/pkg/db"
@@ -148,7 +149,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 	// todo set only if no masters found etc. non crit.
 	remvol := NewVolumeEntryFromRequest(&msg)
 
-	// Masterslave  preparations for volume if master exists
+	// Masterslave preparations for volume if master exists
 	if len(MasterCluster) != 0 {
 		vol.Info.Remvolid = remvol.Info.Id
 		vol.Info.Clusters = MasterCluster
@@ -156,6 +157,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 		remvol.Info.Clusters = SlaveCluster
 
 		logger.Debug("For volume %v set clusters %v and for remote volume %v set clusters %v \n", vol.Info.Id, vol.Info.Clusters, remvol.Info.Id, remvol.Info.Clusters)
+
 	}
 
 	if uint64(msg.Size)*GB < vol.Durability.MinVolumeSize() {
@@ -179,6 +181,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 	// masterslave go on
 	if len(MasterCluster) != 0 {
+		masterSshCluster := strings.Join(MasterCluster, ",")
 
 		if uint64(msg.Size)*GB < remvol.Durability.MinVolumeSize() {
 			http.Error(w, fmt.Sprintf("Requested volume size (%v GB) is "+
@@ -199,13 +202,21 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 				http.StatusInternalServerError)
 			return
 		}
+
 		logger.Debug("For Vol %v Selected host %v from hosts %v", vol.Info.Id, vol.Info.Mount.GlusterFS.Hosts[0], vol.Info.Mount.GlusterFS.Hosts)
 		logger.Debug("For Vol %v Selected host %v from hosts %v", remvol.Info.Id, remvol.Info.Mount.GlusterFS.Hosts[0], remvol.Info.Mount.GlusterFS.Hosts)
 
-		//todo: wait for volume create
-		time.Sleep(time.Minute)
 		// Create Slave-master geo session without start for switdhower needs
 		a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
+			time.Sleep(60 * time.Second)
+
+			// start sshd on master to init georep session
+			sshonerr := a.MasterSlaveSshdSet("start", masterSshCluster)
+			if sshonerr != nil {
+				logger.LogError("Error during stop ssh : %v \n", sshonerr)
+			}
+
+			//todo: wait for volume create
 
 			actionParams := make(map[string]string)
 			actionParams["option"] = "push-pem"
@@ -274,8 +285,7 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 		// Creater master-slave session
 		// Perform GeoReplication action on volume in an asynchronous function
 		a.asyncManager.AsyncHttpRedirectFunc(w, r, func() (string, error) {
-
-			// NEED to setup master-slave sessions both from master to slave and from slave to master
+			time.Sleep(60 * time.Second)
 
 			actionParams := make(map[string]string)
 			actionParams["option"] = "push-pem"
@@ -361,7 +371,16 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 
 			logger.Info("Geo-Replication is started for volume: %v \n", masterVolume)
 
+			// 2do : check if vol created
+			time.Sleep(30 * time.Second)
+			// disable sshd on master
+			sshofferr := a.MasterSlaveSshdSet("stop", masterSshCluster)
+			if sshofferr != nil {
+				logger.LogError("Error during stop ssh : %v \n", sshofferr)
+			}
+
 			return "/volumes/" + masterVolume.Info.Id + "/georeplication", nil
+
 		})
 
 	}

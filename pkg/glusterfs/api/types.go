@@ -466,8 +466,17 @@ type MasterSlaveClusterStatus struct {
 	MasterSlaveCluster
 }
 
+func (v *MasterSlaveClusterStatus) String() string {
+	var s string
+	s = fmt.Sprintf("Cluster remote id: %v\n"+
+		"Cluster status: %v\n",
+		v.Remoteid,
+		v.Status)
+	return s
+}
+
 type MasterSlaveStatus struct {
-	Clusters []MasterSlaveCluster `json:"volume"`
+	Clusters []MasterSlaveCluster `json:"cluster"`
 }
 
 type MasterSlaveStatusResponse struct {
@@ -590,7 +599,8 @@ func (v *VolumeInfoResponse) String() string {
 		"Block: %v\n"+
 		"Free Size: %v\n"+
 		"Block Volumes: %v\n"+
-		"Durability Type: %v\n",
+		"Durability Type: %v\n"+
+		"Remote Volume Id: %v\n",
 		v.Name,
 		v.Size,
 		v.Id,
@@ -600,7 +610,8 @@ func (v *VolumeInfoResponse) String() string {
 		v.Block,
 		v.BlockInfo.FreeSize,
 		v.BlockInfo.BlockVolumes,
-		v.Durability.Type)
+		v.Durability.Type,
+		v.Remvolid)
 
 	switch v.Durability.Type {
 	case DurabilityEC:

@@ -36,6 +36,7 @@ func (c *Client) TopologyInfo() (*api.TopologyInfoResponse, error) {
 			ClusterFlags: api.ClusterFlags{
 				Block: clusteri.Block,
 				File:  clusteri.File,
+				Side:  clusteri.Side,
 			},
 		}
 		cluster.Id = clusteri.Id
