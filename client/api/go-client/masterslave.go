@@ -35,12 +35,13 @@ func (c *Client) MasterClusterSlavePostAction(id string, request *api.ClusterSet
 		return err
 	}
 
-	if r.StatusCode != http.StatusOK {
+	if r.StatusCode != http.StatusAccepted {
 		return utils.GetErrorFromResponse(r)
 	}
 
 	return nil
 }
+
 func (c *Client) MasterSlaveClusterStatus(id string) (*api.MasterSlaveClusterStatus, error) {
 	// Create request
 	req, err := http.NewRequest("GET", c.host+"/clusters/"+id+"/masterslave", nil)
