@@ -18,12 +18,12 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
-	"github.com/gorilla/mux"
 	"github.com/chinacoolhacker/heketi/executors"
 	"github.com/chinacoolhacker/heketi/executors/kubeexec"
 	"github.com/chinacoolhacker/heketi/executors/mockexec"
 	"github.com/chinacoolhacker/heketi/executors/sshexec"
 	"github.com/chinacoolhacker/heketi/pkg/utils"
+	"github.com/gorilla/mux"
 	"github.com/heketi/rest"
 )
 
@@ -151,7 +151,7 @@ func NewApp(configIo io.Reader) *App {
 		logger.Info(
 			"Please refer to the Heketi troubleshooting documentation for more" +
 				" information on how to resolve this issue.")
-		panic(e)
+		//		panic(e) // 2DO - merge from 6.0 master
 	}
 
 	// Set values mentioned in environmental variable
