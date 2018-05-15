@@ -16,13 +16,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/heketi/utils"
 	"net/http"
-	"reflect"
 )
 
 // MasterSlaveStatus of cluster
-// undone
 func (a *App) MasterSlaveClustersStatus(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("In MasterSlaveClustersStatus")
+
 	MasterClusters, SlaveClusters := a.MasterSlaveClustersCheck()
 	logger.Debug("MasterClusters is %v and SlaveClusters is %v \n", MasterClusters, SlaveClusters)
 
@@ -418,16 +417,17 @@ func (a *App) MasterSlaveClusterPostHandler(w http.ResponseWriter, r *http.Reque
 }
 
 // status total iterated by vol
-// undone
 func (a *App) MasterSlaveStatus(w http.ResponseWriter, r *http.Request) {
 
 	var clusters []string
+	var volumes []api.MasterSlaveVolpair
 
 	// Get all the cluster ids from the DB
 	err := a.db.View(func(tx *bolt.Tx) error {
 		var err error
 
 		clusters, err = ClusterList(tx)
+
 		if err != nil {
 			return err
 		}
@@ -440,18 +440,14 @@ func (a *App) MasterSlaveStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// dbg
-	fmt.Printf("%v\n", clusters)
-	fmt.Println(reflect.TypeOf(clusters))
 
 	for _, id := range clusters {
-
 		var info *api.ClusterInfoResponse
-		//		var info []string
+
 		err := a.db.View(func(tx *bolt.Tx) error {
 
-			// Create a db entry from the id
 			entry, err := NewClusterEntryFromId(tx, id)
+
 			if err == ErrNotFound {
 				http.Error(w, err.Error(), http.StatusNotFound)
 				return err
@@ -460,25 +456,77 @@ func (a *App) MasterSlaveStatus(w http.ResponseWriter, r *http.Request) {
 				return err
 			}
 			//dbg
-			fmt.Printf("%v\n", entry)
-			fmt.Println(reflect.TypeOf(entry))
-
-			//			fmt.Printf("%v\n", tx)
-			//			fmt.Println(reflect.TypeOf(tx))
 
 			// Create a response from the db entry
-			info, err = entry.NewClusterInfoResponse(tx)
-			if err != nil {
-				return err
-			}
-			err = UpdateClusterInfoComplete(tx, info)
-			if err != nil {
-				return err
-			}
+			if entry.Info.Status == "master" {
 
-			// dbg
-			//			fmt.Printf("%v\n", info)
-			//			fmt.Println(reflect.TypeOf(info))
+				logger.Debug("Cluster %v found as %v \n", entry.Info.Id, entry.Info.Status)
+
+				info, err = entry.NewClusterInfoResponse(tx)
+				if err != nil {
+					return err
+				}
+				err = UpdateClusterInfoComplete(tx, info)
+				if err != nil {
+					return err
+				}
+
+				for _, id := range info.Volumes {
+
+					var vol *api.VolumeInfoResponse
+					err := a.db.View(func(tx *bolt.Tx) error {
+						entry, err := NewVolumeEntryFromId(tx, id)
+						if err == ErrNotFound || !entry.Visible() {
+							// treat an invisible entry like it doesn't exist
+							http.Error(w, "Id not found", http.StatusNotFound)
+							return ErrNotFound
+						} else if err != nil {
+							http.Error(w, err.Error(), http.StatusInternalServerError)
+							return err
+						}
+
+						vol, err = entry.NewInfoResponse(tx)
+						if err != nil {
+							http.Error(w, err.Error(), http.StatusInternalServerError)
+							return err
+						}
+
+						volpair := api.MasterSlaveVolpair{
+							Id:       vol.Id,
+							Remvolid: vol.Remvolid,
+						}
+
+						logger.Debug("Volume pair %v found \n", volpair)
+
+						volumes = append(volumes, volpair)
+
+						logger.Debug("Volume pairss found %v \n", volumes)
+
+						return nil
+					})
+					if err != nil {
+						return err
+					}
+
+				}
+
+				masterslavestatus := api.MasterSlaveStatus{
+					Id:       info.Id,
+					Status:   info.Status,
+					Remoteid: info.Remoteid,
+					Volumes:  volumes,
+					Side:     info.Side,
+				}
+
+				logger.Debug("Masterslave status is %v \n", masterslavestatus)
+
+				w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+				w.WriteHeader(http.StatusOK)
+				if err := json.NewEncoder(w).Encode(masterslavestatus); err != nil {
+					panic(err)
+				}
+
+			}
 
 			return nil
 		})
@@ -486,22 +534,6 @@ func (a *App) MasterSlaveStatus(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Write msg
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(info); err != nil {
-			panic(err)
-		}
-
-		/////////////////////////////////////////////////////////////////////////////
 	}
 
-	/*
-		// Send clusters back
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(clusters); err != nil {
-			panic(err)
-		}
-	*/
 }

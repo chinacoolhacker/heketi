@@ -475,69 +475,44 @@ func (v *MasterSlaveClusterStatus) String() string {
 	return s
 }
 
+type MasterSlaveVolpair struct {
+	Id       string `json:"id"`
+	Remvolid string `json:"remvolid"`
+}
+
 type MasterSlaveStatus struct {
-	Clusters []MasterSlaveCluster `json:"cluster"`
+	Id       string               `json:"id"`
+	Remoteid string               `json:"remoteid"`
+	Status   string               `json:"status"`
+	Volumes  []MasterSlaveVolpair `json:"volumes"`
+	Side     string               `json:"side,omitempty"`
 }
 
-type MasterSlaveStatusResponse struct {
-	//	Clusters []string         `json:"clusters"`
-	//	Volumes  sort.StringSlice `json:"volumes"`
-}
-
-// Constructors
 func (v *MasterSlaveStatus) String() string {
 	var s string
-	for _, clus := range v.Clusters {
-		s = fmt.Sprintf( //"Cluster Id: %v\n"+
-			"Cluster remid: %v\n",
-			"Cluster status: %v\n",
-			//		clus.Id,
-			clus.Remoteid,
-			clus.Status)
-		/*
-		   s += "Pairs:\n"
-		   for _, p := range vol.Sessions.SessionList[0].Pairs {
-		       s += fmt.Sprintf("\tMaster Node: %s\n"+
-		           "\tMaster Brick: %s\n"+
-		           "\tSlave User: %s\n"+
-		           "\tSlave: %s\n"+
-		           "\tSlave Node: %s\n"+
-		           "\tStatus: %s\n"+
-		           "\tCrawl Status: %s\n"+
-		           "\tEntry: %s\n"+
-		           "\tData: %s\n"+
-		           "\tMeta: %s\n"+
-		           "\tFailures: %s\n"+
-		           "\tCheckpoint Completed: %s\n"+
-		           "\tMaster Node UUID: %s\n"+
-		           "\tLast Synced: %s\n"+
-		           "\tCheckpoint Time: %s\n"+
-		           "\tCheckpoint Completion Time: %s\n\n",
-		           p.MasterNode,
-		           p.MasterBrick,
-		           p.SlaveUser,
-		           p.Slave,
-		           p.SlaveNode,
-		           p.Status,
-		           p.CrawlStatus,
-		           p.Entry,
-		           p.Data,
-		           p.Meta,
-		           p.Failures,
-		           p.CheckpointCompleted,
-		           p.MasterNodeUUID,
-		           p.LastSynced,
-		           p.CheckpointTime,
-		           p.CheckpointCompletionTime,
-		       )
-		   }
-		*/
+	var vols string
+	s = fmt.Sprintf("Master Cluster Id: %v\n"+
+		"Cluster Status: %v\n"+
+		"Slave Cluster Id: %v\n"+
+		"Master Cluster Side: %v\n",
+		v.Id,
+		v.Remoteid,
+		v.Status,
+		v.Side) +
+		fmt.Sprintf("Volumes: \n")
+
+	for _, vol := range v.Volumes {
+		vols += fmt.Sprintf("\tVolume id: %v\n"+
+			"\tVolume remote id: %v\n \n",
+			vol.Id,
+			vol.Remvolid)
 	}
 
-	return s
+	return s + vols
 }
 
 //
+// Constructors
 
 func (v *GeoReplicationStatus) String() string {
 	var s string
