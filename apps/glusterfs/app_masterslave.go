@@ -493,6 +493,7 @@ func (a *App) MasterSlaveStatus(w http.ResponseWriter, r *http.Request) {
 
 						volpair := api.MasterSlaveVolpair{
 							Id:       vol.Id,
+							Name:     vol.Name,
 							Remvolid: vol.Remvolid,
 						}
 
