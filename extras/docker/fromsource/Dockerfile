@@ -1,5 +1,5 @@
 # set author and base
-FROM fedora
+FROM fedora:26
 MAINTAINER Luis Pabón <lpabon@redhat.com>
 
 LABEL version="1.3.1"
@@ -9,11 +9,11 @@ LABEL description="Development build"
 ENV BUILD_HOME=/build
 ENV GOPATH=$BUILD_HOME/golang
 ENV PATH=$GOPATH/bin:$PATH
-ENV HEKETI_BRANCH="devel"
+ENV HEKETI_BRANCH="master"
 
 # install dependencies, build and cleanup
 RUN mkdir $BUILD_HOME $GOPATH && \
-    dnf -y install glide golang git make && \
+    dnf -y install glide golang git make glibc-static && \
     dnf -y clean all && \
     mkdir -p $GOPATH/src/github.com/chinacoolhacker && \
     cd $GOPATH/src/github.com/chinacoolhacker && \

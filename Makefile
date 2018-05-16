@@ -32,10 +32,18 @@ else
 endif
 endif
 
+ifeq ($(GOSTATIC),static)
+        GOLDSTATIC :=-static
+endif
+ifeq ($(GOSTATIC),"static")
+        GOLDSTATIC :=-static
+endif
+
+
 # Sources and Targets
 EXECUTABLES :=$(APP_NAME)
 # Build Binaries setting main.version and main.build vars
-LDFLAGS :=-ldflags "-X main.HEKETI_VERSION=$(VERSION) -extldflags '-z relro -z now'"
+LDFLAGS :=-ldflags "-X main.HEKETI_VERSION=$(VERSION) -extldflags '-z relro -z now $(GOLDSTATIC)'"
 # Package target
 PACKAGE :=$(DIR)/dist/$(APP_NAME)-$(VERSION).$(GOOS).$(GOARCH).tar.gz
 CLIENT_PACKAGE :=$(DIR)/dist/$(APP_NAME)-client-$(VERSION).$(GOOS).$(GOARCH).tar.gz
