@@ -6,11 +6,12 @@ FROM fedora:26 as builder
 ENV BUILD_HOME=/build
 ENV GOPATH=$BUILD_HOME/golang
 ENV PATH=$GOPATH/bin:$PATH
-ENV HEKETI_BRANCH="devel"
+ENV HEKETI_BRANCH="master"
+ENV GOSTATIC=static
 
 # install dependencies, build and cleanup
 RUN mkdir $BUILD_HOME $GOPATH && \
-    dnf -y install glide golang git make && \
+    dnf -y install glide golang git make glibc-static && \
     dnf -y clean all 
 
 RUN mkdir -p $GOPATH/src/github.com/chinacoolhacker && \
@@ -20,24 +21,25 @@ RUN mkdir -p $GOPATH/src/github.com/chinacoolhacker && \
     glide install -v 
 
 RUN cd $GOPATH/src/github.com/chinacoolhacker/heketi && \
+    git config --global user.email "you@example.com" && \
+    git config --global user.name "Your Name" && \
     git pull && \
     make && \
     cp heketi /usr/bin/heketi && \
     cp client/cli/go/heketi-cli /usr/bin/heketi-cli 
 
 
-
 # post install config and volume setup
 FROM alpine:latest
 
-LABEL version="0.0.9"
+LABEL version="0.1.0"
 LABEL description="Development build"
 
 ADD ./heketi.json /etc/heketi/heketi.json
 ADD ./heketi-start.sh /usr/bin/heketi-start.sh
 
 RUN mkdir /var/lib/heketi && \
-    apk add --no-cache --update ca-certificates 
+    apk add --no-cache --update ca-certificates bash util-linux libc6-compat
 
 VOLUME /etc/heketi
 VOLUME /var/lib/heketi

@@ -477,6 +477,7 @@ func (v *MasterSlaveClusterStatus) String() string {
 
 type MasterSlaveVolpair struct {
 	Id       string `json:"id"`
+	Name     string `json:"name"`
 	Remvolid string `json:"remvolid"`
 }
 
@@ -492,8 +493,8 @@ func (v *MasterSlaveStatus) String() string {
 	var s string
 	var vols string
 	s = fmt.Sprintf("Master Cluster Id: %v\n"+
-		"Cluster Status: %v\n"+
 		"Slave Cluster Id: %v\n"+
+		"Cluster Status: %v\n"+
 		"Master Cluster Side: %v\n",
 		v.Id,
 		v.Remoteid,
@@ -503,8 +504,10 @@ func (v *MasterSlaveStatus) String() string {
 
 	for _, vol := range v.Volumes {
 		vols += fmt.Sprintf("\tVolume id: %v\n"+
+			"\tVolume Name: %v\n"+
 			"\tVolume remote id: %v\n \n",
 			vol.Id,
+			vol.Name,
 			vol.Remvolid)
 	}
 
