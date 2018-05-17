@@ -98,7 +98,18 @@ func (n *NodeEntry) NewGeoReplicationStatusResponse(executor executors.Executor)
 
 	for _, volume := range status.Volume {
 		v := newGeoReplicationVolume(volume)
-		resp.Volumes = append(resp.Volumes, v)
+
+		volumeExists := false
+		for _, existingVolume := range resp.Volumes {
+			if existingVolume.VolumeName == v.VolumeName {
+				volumeExists = true
+				existingVolume.Sessions.SessionList[0].Pairs = append(existingVolume.Sessions.SessionList[0].Pairs, v.Sessions.SessionList[0].Pairs...)
+			}
+		}
+
+		if !volumeExists {
+			resp.Volumes = append(resp.Volumes, v)
+		}
 	}
 
 	return resp, nil

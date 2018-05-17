@@ -516,8 +516,9 @@ func (v *MasterSlaveStatus) String() string {
 
 func (v *GeoReplicationStatus) String() string {
 	var s string
+	s = ""
 	for _, vol := range v.Volumes {
-		s = fmt.Sprintf("Master Volume Name: %v\n"+
+		s += fmt.Sprintf("Master Volume Name: %v\n"+
 			"Session slave: %v\n",
 			vol.VolumeName,
 			vol.Sessions.SessionList[0].SessionSlave)

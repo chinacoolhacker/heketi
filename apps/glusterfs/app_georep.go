@@ -40,13 +40,25 @@ func (a *App) GeoReplicationStatus(w http.ResponseWriter, r *http.Request) {
 			return ErrNotFound
 		}
 
-		cluster, err := NewClusterEntryFromId(tx, clusters[0])
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return err
+		clusters, err = ClusterList(tx)
+
+		var masterCluster *ClusterEntry
+
+		for _, id := range clusters {
+			cluster, err := NewClusterEntryFromId(tx, id)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return err
+			}
+
+			if cluster.Info.Status == "master" {
+				masterCluster = cluster
+				break
+			}
 		}
 
-		if len(cluster.Info.Nodes) == 0 {
+
+		if len(masterCluster.Info.Nodes) == 0 {
 			errMsg := "No clusters configured"
 			http.Error(w, fmt.Sprintf(errMsg), http.StatusBadRequest)
 			logger.LogError(errMsg)
@@ -54,7 +66,7 @@ func (a *App) GeoReplicationStatus(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//use first node of the first cluster to get status
-		node, err = NewNodeEntryFromId(tx, cluster.Info.Nodes[0])
+		node, err = NewNodeEntryFromId(tx, masterCluster.Info.Nodes[0])
 		if err == ErrNotFound {
 			http.Error(w, "Node Id not found", http.StatusNotFound)
 			return err
