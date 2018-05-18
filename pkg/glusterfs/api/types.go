@@ -434,7 +434,7 @@ type GeoReplicationPair struct {
 	Failures                 string `json:"failures"`
 	CheckpointCompleted      string `json:"checkpoint_completed"`
 	MasterNodeUUID           string `json:"master_node_uuid"`
-	LastSynced               string `json:"last_string"`
+	LastSynced               string `json:"last_synced"`
 	CheckpointTime           string `json:"checkpoint_time"`
 	CheckpointCompletionTime string `json:"checkpoint_completion_time"`
 }

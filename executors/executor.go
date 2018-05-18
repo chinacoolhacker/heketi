@@ -73,7 +73,7 @@ type GeoReplicationPair struct {
 	Failures                 string `xml:"failures"`
 	CheckpointCompleted      string `xml:"checkpoint_completed"`
 	MasterNodeUUID           string `xml:"master_node_uuid"`
-	LastSynced               string `xml:"last_string"`
+	LastSynced               string `xml:"last_synced"`
 	CheckpointTime           string `xml:"checkpoint_time"`
 	CheckpointCompletionTime string `xml:"checkpoint_completion_time"`
 }
